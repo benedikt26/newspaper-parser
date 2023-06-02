@@ -65,7 +65,7 @@ def process_txt_files(input_folder):
                     elif line.startswith("Body"):
                         capture_body = True
                         continue
-                    elif line.startswith("Notes") or line.startswith("Classification"):
+                    elif line.startswith("Notes") or line.startswith("Classification") or line.lower().startswith(author.lower()):
                         break
                     elif capture_body:
                         body += line.strip() + " "
