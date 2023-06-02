@@ -65,39 +65,77 @@ def process_txt_files(input_folder):
                     elif line.startswith("Body"):
                         capture_body = True
                         continue
+                    
+                    # MINNESOTA STAR TRIBUNE
                     elif line.startswith("Notes") or line.startswith("Classification"):
                         break
+                    
+                    # POST-BULLETIN
+                    elif line.startswith("___ (c)") or line.startswith("To see more of the Post-Bulletin") or line.startswith("Copyright (c)") or line.startswith("Have some regional news from"):
+                        break
+                    
                     elif capture_body:
+                        # MINNESOTA STAR TRIBUNE
                         if author != "" and line.lower().startswith(author.lower()):
                             break
+                        
+                        # POST-BULLETIN
+                        if len(body) < 5 and re.search(r'.*\d+(?:-{2,}|—)', line):
+                            if re.search(r'.*[A-Z]{3,} (?:-{2,}|—)', line): # Use regex to strip the pattern "XY --" / "XY —" (Location after Date) and any preceding content
+                                body += re.sub(r'.*[A-Z]{3,} (?:-{2,}|—)', '', line).strip() + " "
+                                continue
+                            else: # Use regex to strip the pattern "\d--" / "\d —" (Month and Date) and any preceding content
+                                body += re.sub(r'.*\d+(?:-{2,}|—)', '', line).strip() + " "
+                                continue
+                        
+                        # GENERAL
                         body += line.strip() + " "
                 
                 data.append({
                     'Date': date,
-                    'State': 'MN',
+                    'State': 'MN', #change manually!
                     'Newspaper': newspaper,
                     'Author': author,
                     'Title': title,
                     'Length': length,
                     'Body': body,
-                    'Energy Type': 'wind',
+                    'Energy Type': 'wind', #change manually!
                 })
     
     df = pd.DataFrame(data)
     return df
 
-input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Minneapolis Star Tribune\Articles"
-output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Minneapolis Star Tribune\TXT"
+# MINNEAPOLIS STAR TRIBUNE
+#input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Minneapolis Star Tribune\Articles"
+#output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Minneapolis Star Tribune\TXT"
+#output_excel_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_Minneapolis Star Tribune.xlsx"
+#output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_Minneapolis Star Tribune.pkl"
 
-convert_rtf_to_txt(input_folder, output_folder)
+# THE COLUMBIAN
+#input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Columbian\Articles"
+#output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Columbian\TXT"
+#output_excel_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Columbian.xlsx"
+#output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Columbian.pkl"
+
+# POST-BULLETIN
+input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Post-Bulletin\Articles"
+output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Post-Bulletin\TXT"
+output_excel_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_Post-Bulletin.xlsx"
+output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_Post-Bulletin.pkl"
+
+# THE SPOKESMAN-REVIEW
+#input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Spokesman-Review\Articles"
+#output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Spokesman-Review\TXT"
+#output_excel_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Spokesman-Review.xlsx"
+#output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Spokesman-Review.pkl"
+
+#convert_rtf_to_txt(input_folder, output_folder)
 df = process_txt_files(output_folder)
 print(df.head(10))
 
-output_excel_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Minneapolis Star Tribune\dataframe.xlsx"
 df.to_excel(output_excel_folder, index=False)
 print("Data saved successfully to", output_excel_folder)
 
-output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Minneapolis Star Tribune\dataframe.pkl"
 df.to_pickle(output_pkl_folder)
 print("Data saved successfully to", output_pkl_folder)
 
