@@ -65,9 +65,11 @@ def process_txt_files(input_folder):
                     elif line.startswith("Body"):
                         capture_body = True
                         continue
-                    elif line.startswith("Notes") or line.startswith("Classification") or line.lower().startswith(author.lower()):
+                    elif line.startswith("Notes") or line.startswith("Classification"):
                         break
                     elif capture_body:
+                        if author != "" and line.lower().startswith(author.lower()):
+                            break
                         body += line.strip() + " "
                 
                 data.append({
@@ -87,7 +89,7 @@ def process_txt_files(input_folder):
 input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Minneapolis Star Tribune\Articles"
 output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Minneapolis Star Tribune\TXT"
 
-convert_rtf_to_txt(input_folder, output_folder)
+#convert_rtf_to_txt(input_folder, output_folder)
 df = process_txt_files(output_folder)
 print(df.head(10))
 
