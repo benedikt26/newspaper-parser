@@ -89,7 +89,7 @@ def process_txt_files(input_folder):
 input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Minneapolis Star Tribune\Articles"
 output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Minneapolis Star Tribune\TXT"
 
-#convert_rtf_to_txt(input_folder, output_folder)
+convert_rtf_to_txt(input_folder, output_folder)
 df = process_txt_files(output_folder)
 print(df.head(10))
 
