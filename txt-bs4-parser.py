@@ -43,7 +43,13 @@ def process_txt_files(input_folder):
                 
                 # Extract / transform date, newspaper, title according to their position
                 date_str = lines[5].strip()
-                date = datetime.strptime(date_str, '%B %d, %Y %A').date()
+                try: # Account for additional content in the date line
+                    match = re.search(r"\w+ \d+, \d+", date_str)
+                    if match:
+                        date_ext = match.group()
+                        date = datetime.strptime(date_ext, '%B %d, %Y').date()
+                except Exception as e:
+                    date = "NA"  # Account for missing date stamps (e.g. The Spokesman-Review)
                 state = ""
                 newspaper = lines[4].strip()
                 author = ""
@@ -93,8 +99,8 @@ def process_txt_files(input_folder):
                 
                 data.append({
                     'Date': date,
-                    'State': 'MN', #change manually!
-                    'Newspaper': newspaper,
+                    'State': 'WA', #change manually!
+                    'Newspaper': 'The Spokesman-Review', #change manually
                     'Author': author,
                     'Title': title,
                     'Length': length,
@@ -118,16 +124,16 @@ def process_txt_files(input_folder):
 #output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Columbian.pkl"
 
 # POST-BULLETIN
-input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Post-Bulletin\Articles"
-output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Post-Bulletin\TXT"
-output_excel_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_Post-Bulletin.xlsx"
-output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_Post-Bulletin.pkl"
+#input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Post-Bulletin\Articles"
+#output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Post-Bulletin\TXT"
+#output_excel_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_Post-Bulletin.xlsx"
+#output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_Post-Bulletin.pkl"
 
 # THE SPOKESMAN-REVIEW
-#input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Spokesman-Review\Articles"
-#output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Spokesman-Review\TXT"
-#output_excel_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Spokesman-Review.xlsx"
-#output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Spokesman-Review.pkl"
+input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Spokesman-Review\Articles"
+output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Spokesman-Review\TXT"
+output_excel_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Spokesman-Review.xlsx"
+output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Spokesman-Review.pkl"
 
 #convert_rtf_to_txt(input_folder, output_folder)
 df = process_txt_files(output_folder)
