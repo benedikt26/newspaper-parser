@@ -41,7 +41,7 @@ def process_txt_files(input_folder):
                 
                 lines = soup.get_text().split('\n')
                 
-                # Extract / transform date, newspaper, title according to their position
+                # Extract / transform date and title according to their position
                 date_str = lines[5].strip()
                 try: # Account for additional content in the date line
                     match = re.search(r"\w+ \d+, \d+", date_str)
@@ -50,8 +50,8 @@ def process_txt_files(input_folder):
                         date = datetime.strptime(date_ext, '%B %d, %Y').date()
                 except Exception as e:
                     date = "NA"  # Account for missing date stamps (e.g. The Spokesman-Review)
-                state = ""
-                newspaper = lines[4].strip()
+                #state = ""
+                #newspaper = lines[4].strip()
                 author = ""
                 title = lines[3].strip()
                 length = ""
@@ -59,14 +59,29 @@ def process_txt_files(input_folder):
                 
                 capture_body = False
                 for line in lines:
-                    # Strip everything after the name in the author line (usually comma or semicolon-delimited)
+                    # Strip everything before or after the name in the author line (different characteristics per newspaper)
                     if line.startswith("Byline:"):
                         author_line = line.split("Byline:")[1].strip()
-                        match = re.search(r'([^,;]+)', author_line)
+                        match = re.search(r'([^,;]+)', author_line)  # MINNESOTA STAR TRIBUNE
                         if match:
-                            author = match.group(0).strip()
+                            author_line = match.group(0).strip()
+                        if author_line.startswith("By "):  # THE COLUMBIAN    
+                            author_line = author_line.split("By ")[1].strip()
+                        elif author_line.startswith("by "):  # THE COLUMBIAN
+                            author_line = author_line.split("by ")[1].strip()
+                        if "Associated Press" in author_line:  # THE COLUMBIAN
+                            author_line = author_line.split("Associated Press")[0].strip()
+                        if "staff writer" in author_line:  # THE COLUMBIAN
+                            author_line = author_line.split("staff writer")[0].strip()
+                        if "The Columbian" in author_line:  # THE COLUMBIAN
+                            author_line = author_line.split("The Columbian")[0].strip()
+                        if "Columbian" in author_line:  # THE COLUMBIAN
+                            author_line = author_line.split("Columbian")[0].strip()
+                        author = author_line
+                    
                     elif line.startswith("Length:"):
                         length = line.split("Length:")[1].strip().split()[0]
+                    
                     # Extract the body which is stores in multiple lines (ending with certain marker words)
                     elif line.startswith("Body"):
                         capture_body = True
@@ -79,6 +94,10 @@ def process_txt_files(input_folder):
                     # POST-BULLETIN
                     elif line.startswith("___ (c)") or line.startswith("To see more of the Post-Bulletin") or line.startswith("Copyright (c)") or line.startswith("Have some regional news from"):
                         break
+                    elif "The following fields overflowed: " in line:
+                        body += line.split("The following fields overflowed: ")[0] + " "
+                    
+                    # TO DO: Author name within line instead of at the beginning of a line
                     
                     elif capture_body:
                         # MINNESOTA STAR TRIBUNE
@@ -99,8 +118,12 @@ def process_txt_files(input_folder):
                 
                 data.append({
                     'Date': date,
+                    #'State': 'MN', #change manually!
                     'State': 'WA', #change manually!
-                    'Newspaper': 'The Spokesman-Review', #change manually
+                    #'Newspaper': 'Minneapolis Star Tribune', #change manually -> MN
+                    #'Newspaper': 'The Spokesman-Review', #change manually -> WA
+                    #'Newspaper': 'Post-Bulletin', #change manually -> MN
+                    'Newspaper': 'The Columbian', #change manually -> WA
                     'Author': author,
                     'Title': title,
                     'Length': length,
@@ -118,10 +141,10 @@ def process_txt_files(input_folder):
 #output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_Minneapolis Star Tribune.pkl"
 
 # THE COLUMBIAN
-#input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Columbian\Articles"
-#output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Columbian\TXT"
-#output_excel_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Columbian.xlsx"
-#output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Columbian.pkl"
+input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Columbian\Articles"
+output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Columbian\TXT"
+output_excel_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Columbian.xlsx"
+output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Columbian.pkl"
 
 # POST-BULLETIN
 #input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Post-Bulletin\Articles"
@@ -130,12 +153,12 @@ def process_txt_files(input_folder):
 #output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_Post-Bulletin.pkl"
 
 # THE SPOKESMAN-REVIEW
-input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Spokesman-Review\Articles"
-output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Spokesman-Review\TXT"
-output_excel_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Spokesman-Review.xlsx"
-output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Spokesman-Review.pkl"
+#input_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Spokesman-Review\Articles"
+#output_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\The Spokesman-Review\TXT"
+#output_excel_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Spokesman-Review.xlsx"
+#output_pkl_folder = R"C:\Users\lechl\OneDrive - TUM\Hiwi\Jeana\Local US Newspapers\Output\dataframe_The Spokesman-Review.pkl"
 
-#convert_rtf_to_txt(input_folder, output_folder)
+convert_rtf_to_txt(input_folder, output_folder)
 df = process_txt_files(output_folder)
 print(df.head(10))
 
